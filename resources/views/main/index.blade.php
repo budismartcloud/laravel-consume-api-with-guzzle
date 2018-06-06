@@ -12,6 +12,11 @@
     <script src="{{asset("public/js/bootstrap.min.js")}}"></script>
     <script src="{{asset("public/js/math.min.js")}}"></script>
 </head>
+<style>
+	img{
+		border: 1px solid rgba(0,0,0,.125);
+	}
+</style>
 <body>
 	<div class="container">
         <div class="jumbotron">
@@ -29,45 +34,39 @@
                 <div class="card-deck">
                     <div class="card">
                         <img id="img0" src="{{asset("public/img/id.gif")}}" alt="Gambar" class="card-img-top">
-                        <!-- <div class="card-body">
-                            <label for="file0" class="btn btn-primary btn-disabled">Open File</label>
-                            <input type="file" onchange="getImage(0)" id="file0" style="position: fixed; top: -100em">
-                        </div> -->
+                        <div class="card-body">
+                            <a class="text-center" href="#" onclick="process(102)">Indonesia</a>
+                        </div>
                     </div>
                     <div class="card">
                         <img id="img1" src="{{asset("public/img/au.GIF")}}" alt="Gambar" class="card-img-top">
-                        <!-- <div class="card-body">
-                            <label for="file1" class="btn btn-primary btn-disabled">Open File</label>
-                            <input type="file" onchange="getImage(1)" id="file1" style="position: fixed; top: -100em">
-                        </div> -->
+                        <div class="card-body">
+                            <a class="text-center" href="#" onclick="process(14)">Australia</a>
+                        </div>
                     </div>
                     <div class="card">
                         <img id="img2" src="{{asset("public/img/us.GIF")}}" alt="Gambar" class="card-img-top">
-                        <!-- <div class="card-body">
-                            <label for="file2" class="btn btn-primary btn-disabled">Open File</label>
-                            <input type="file" onchange="getImage(2)" id="file2" style="position: fixed; top: -100em">
-                        </div> -->
+                        <div class="card-body">
+                            <a class="text-center" href="#" onclick="process(236)">United States</a>
+                        </div>
                     </div>
                     <div class="card">
                         <img id="img3" src="{{asset("public/img/my.GIF")}}" alt="Gambar" class="card-img-top">
-                        <!-- <div class="card-body">
-                            <label for="file3" class="btn btn-primary btn-disabled">Open File</label>
-                            <input type="file" onchange="getImage(3)" id="file3" style="position: fixed; top: -100em">
-                        </div> -->
+                        <div class="card-body">
+                            <a class="text-center" href="#" onclick="process(159)">Malaysia</a>
+                        </div>
                     </div>
                     <div class="card">
                         <img id="img4" src="{{asset("public/img/tv.GIF")}}" alt="Gambar" class="card-img-top">
-                        <!-- <div class="card-body">
-                            <label for="file4" class="btn btn-primary btn-disabled">Open File</label>
-                            <input type="file" onchange="getImage(4)" id="file4" style="position: fixed; top: -100em">
-                        </div> -->
+                        <div class="card-body">
+                            <a class="text-center" href="#" onclick="process(230)">Tuvalu</a>
+                        </div>
                     </div>
                     <div class="card">
                         <img id="img5" src="{{asset("public/img/ga.GIF")}}" alt="Gambar" class="card-img-top">
-                        <!-- <div class="card-body">
-                            <label for="file5" class="btn btn-primary btn-disabled">Open File</label>
-                            <input type="file" onchange="getImage(5)" id="file5" style="position: fixed; top: -100em">
-                        </div> -->
+                        <div class="card-body">
+                            <a href="#" onclick="process(77)">Gabon</a>
+                        </div>
                     </div>
                 </div>
                 <br>
@@ -83,47 +82,7 @@
 							</button>
 							</div>
 							<div class="modal-body">
-									<div class="card">
-										<img id="img0" src="{{asset("public/img/id.gif")}}" alt="Gambar" class="card-img-bottom">
-										<div class="card-body">
-											<p class="text-center">Indonesia</p>
-										</div>
-									</div>
-									<div class="card">
-										<img id="img1" src="{{asset("public/img/au.GIF")}}" alt="Gambar" class="card-img-top">
-										<!-- <div class="card-body">
-											<label for="file1" class="btn btn-primary btn-disabled">Open File</label>
-											<input type="file" onchange="getImage(1)" id="file1" style="position: fixed; top: -100em">
-										</div> -->
-									</div>
-									<div class="card">
-										<img id="img2" src="{{asset("public/img/us.GIF")}}" alt="Gambar" class="card-img-top">
-										<!-- <div class="card-body">
-											<label for="file2" class="btn btn-primary btn-disabled">Open File</label>
-											<input type="file" onchange="getImage(2)" id="file2" style="position: fixed; top: -100em">
-										</div> -->
-									</div>
-									<div class="card">
-										<img id="img3" src="{{asset("public/img/my.GIF")}}" alt="Gambar" class="card-img-top">
-										<!-- <div class="card-body">
-											<label for="file3" class="btn btn-primary btn-disabled">Open File</label>
-											<input type="file" onchange="getImage(3)" id="file3" style="position: fixed; top: -100em">
-										</div> -->
-									</div>
-									<div class="card">
-										<img id="img4" src="{{asset("public/img/tv.GIF")}}" alt="Gambar" class="card-img-top">
-										<!-- <div class="card-body">
-											<label for="file4" class="btn btn-primary btn-disabled">Open File</label>
-											<input type="file" onchange="getImage(4)" id="file4" style="position: fixed; top: -100em">
-										</div> -->
-									</div>
-									<div class="card">
-										<img id="img5" src="{{asset("public/img/ga.GIF")}}" alt="Gambar" class="card-img-top">
-										<!-- <div class="card-body">
-											<label for="file5" class="btn btn-primary btn-disabled">Open File</label>
-											<input type="file" onchange="getImage(5)" id="file5" style="position: fixed; top: -100em">
-										</div> -->
-									</div>
+								<p>Loading..</p>
 							</div>
 							<div class="modal-footer">
 							<button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>

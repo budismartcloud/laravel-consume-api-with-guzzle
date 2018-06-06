@@ -67,7 +67,7 @@ class HistogramGenerator extends Command
             $barWidth = 2;
 
             $explode = explode(".", $sourceFile);
-            $filetype = $explode[1];
+            $filetype = $explode[count($explode)-1];
 
             if ($filetype == 'jpg') {
                 $image = imagecreatefromjpeg($sourceFile);
@@ -97,21 +97,30 @@ class HistogramGenerator extends Command
                     {
                             // get the rgb value for current pixel
                             
-                            $rgb = ImageColorAt($image, $i, $j); 
+                            $rgb = imagecolorat($image, $i, $j);
+                            $colors = imagecolorsforindex($image, $rgb);
                             
                             // extract each value for r, g, b
                             
-                            $r = ($rgb >> 16) & 0xFF;
-                            $g = ($rgb >> 8) & 0xFF;
-                            $b = $rgb & 0xFF;
+                            // $r = ($rgb >> 16) & 0xFF;
+                            // $g = ($rgb >> 8) & 0xFF;
+                            // $b = $rgb & 0xFF;
+
+                            $r = $colors['red'];
+                            $g = $colors['green'];
+                            $b = $colors['blue'];
                             
-                            // get the Value from the RGB value
+                            // // get the Value from the RGB value
                             
-                            $V = round(($r + $g + $b) / 3);
+                            // $V = round(($r + $g + $b) / 3);
                             
-                            // add the point to the histogram
+                            // // add the point to the histogram
                             
-                            $histogram[$V] += $V / $totalPixel;
+                            // $histogram[$V] += $V / $totalPixel;
+
+                            $histogram[0][$r]+=1;
+                            $histogram[1][$g]+=1;
+                            $histogram[2][$b]+=1;
                     
                     }
             }
@@ -137,6 +146,7 @@ class HistogramGenerator extends Command
 
         }catch(\Exception $e){
             $this->info($e->getMessage());
+            $this->info(print_r($explode));
         }
     }
 
@@ -144,8 +154,11 @@ class HistogramGenerator extends Command
     private function initHistogram()
     {
         $histogram = [];
-        for($i = 0; $i < 256; $i ++){
-            $histogram[$i] = 0;
+        for ($a=0; $a < 3; $a++) { 
+            $histogram[$a] = [];
+            for($i = 0; $i < 256; $i ++){
+                $histogram[$a][$i] = 0;
+            }
         }
 
         return $histogram;

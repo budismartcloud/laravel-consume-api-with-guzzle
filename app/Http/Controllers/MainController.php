@@ -73,7 +73,7 @@ class MainController extends Controller
 
 		$imageId .= "0";
 
-		$data = Library::whereRaw("id IN (".$imageId.")")->get();
+		$data = Library::whereRaw("id IN (".$imageId.")")->orderByRaw("FIELD(id,".$imageId.")")->get();
 		$result = [];
 		foreach ($data as $key => $value) {
 			$result[] = [
@@ -97,8 +97,10 @@ class MainController extends Controller
 		$histogramSelectedObject = json_decode($selectedLibrary->histogram);
 		foreach ($this->dataSet as $key => $value) {
 			$currentHistogram = json_decode($value->histogram);
-			for($i = 0; $i < 256; $i++){
-				$this->templateScore[$value->id]['template_score'][$i] = ($histogramSelectedObject[$i] - $currentHistogram[$i] );
+			for ($a=0; $a < 3; $a++) { 
+				for($i = 0; $i < 256; $i++){
+					$this->templateScore[$value->id]['template_score'][$a][$i] = ($histogramSelectedObject[$a][$i] - $currentHistogram[$a][$i] );
+				}
 			}
 		}
 
@@ -112,10 +114,11 @@ class MainController extends Controller
 	{
 		foreach ($this->templateScore as $key => $value) {
 			$tempScore = 0;
-			foreach ($value['template_score'] as $no => $score) {
-				$tempScore += pow($score, 2);
+			foreach ($value['template_score'] as $a => $scores) {
+				foreach ($scores as $k => $score) {
+					$tempScore += pow($score, 2);
+				}
 			}
-
 			if($tempScore > 0){
 				$tempScore = sqrt($tempScore);
 			}
@@ -142,8 +145,11 @@ class MainController extends Controller
 		$distanceScore = [];
 		foreach ($this->dataSet as $key => $value) {
 			$matrixValue = [];
-			for($i = 0; $i<256; $i++){
-				$matrixValue[$i] = 0;
+			for ($a=0; $a < 3; $a++) { 
+				$matrixValue[$a] = [];
+				for($i = 0; $i<256; $i++){
+					$matrixValue[$a][$i] = 0;
+				}
 			}
 
 			$templateScore[$value->id] = [

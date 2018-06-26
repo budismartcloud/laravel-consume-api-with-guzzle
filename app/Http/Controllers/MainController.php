@@ -4,171 +4,244 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use DB;
-use App\Models\Library;
-
+use GuzzleHttp\Client;
 
 class MainController extends Controller
 {
 
-	private $dataSet;
-	private $templateScore;
-	private $distanceScore;
-	private $limit;
-
-	public function __construct()
+	public function actionIndex()
 	{
-		$this->dataSet = $this->initDataSet();
-		$this->templateScore = $this->initTemplateScore();
-		$this->limit = 20;
-	}
+		$client = new \GuzzleHttp\Client();
+		$res = $client->request('GET', 'http://localhost:3000/products');
+		$result = json_decode($res->getBody());
 
-	public function actionIndex(Request $request)
-	{
+		$data = [];
+		foreach ($result as $key => $value) {
+
+			try{
+				$name = $value->name;
+			}catch(\Exception $e){
+				$name = "-";
+			}
+
+			try{
+				$category = $value->category;
+			}catch(\Exception $e){
+				$category = "-";
+			}
+
+			try{
+				$description = $value->description;
+			}catch(\Exception $e){
+				$description = "-";
+			}
+
+			try{
+				$price = $value->price;
+			}catch(\Exception $e){
+				$price = "-";
+			}
+
+			try{
+				$pic = $value->pic;
+			}catch(\Exception $e){
+				$pic = "-";
+			}
+
+			$data[] = [
+				'id' => $value->_id,
+				'name' => $name,
+				'description' => $description,
+				'price' => $price,
+				'category' => $category,
+				'pic' => $pic
+			];
+		}
+
 		$params = [
-			'data' => $this->dataSet
+			'data' => $data
 		];
+
 		return view('main.index', $params);
 	}
 
-	public function actionProcess(Request $request)
+	public function actionFindOne(Request $request)
 	{
-
-
 		$id = $request->get('id');
-		$result = false;
+		$client = new \GuzzleHttp\Client();
+		$res = $client->request('GET', 'http://localhost:3000/products/'.$id);
+		$value = json_decode($res->getBody());
+
 		try{
-			$result = $this->calculateDistance($id);
-		}catch(\Exception $e){
-			$result = false;
+				$name = $value->name;
+			}catch(\Exception $e){
+				$name = "-";
+			}
+
+			try{
+				$category = $value->category;
+			}catch(\Exception $e){
+				$category = "-";
+			}
+
+			try{
+				$description = $value->description;
+			}catch(\Exception $e){
+				$description = "-";
+			}
+
+			try{
+				$price = $value->price;
+			}catch(\Exception $e){
+				$price = "-";
+			}
+
+			try{
+				$pic = $value->pic;
+			}catch(\Exception $e){
+				$pic = "-";
+			}
+
+			$data = [
+				'id' => $value->_id,
+				'name' => $name,
+				'description' => $description,
+				'price' => $price,
+				'category' => $category,
+				'pic' => $pic
+			];
+
+		$params = [
+			'data' => $data
+		];
+
+		return view('main.show', $params);
+
+	}
+
+	public function actionAdd(Request $request)
+	{
+		$id = $request->input('id');
+		
+		if($id){
+			$id = $request->get('id');
+			$client = new \GuzzleHttp\Client();
+			$res = $client->request('GET', 'http://localhost:3000/products/'.$id);
+			$value = json_decode($res->getBody());
+
+			try{
+				$name = $value->name;
+			}catch(\Exception $e){
+				$name = "-";
+			}
+
+			try{
+				$category = $value->category;
+			}catch(\Exception $e){
+				$category = "-";
+			}
+
+			try{
+				$description = $value->description;
+			}catch(\Exception $e){
+				$description = "-";
+			}
+
+			try{
+				$price = $value->price;
+			}catch(\Exception $e){
+				$price = "-";
+			}
+
+			try{
+				$pic = $value->pic;
+			}catch(\Exception $e){
+				$pic = "-";
+			}
+
+			$data = [
+				'id' => $value->_id,
+				'name' => $name,
+				'description' => $description,
+				'price' => $price,
+				'category' => $category,
+				'pic' => $pic
+			];
+
+		}else{
+			$data = null;
 		}
 
-		if($result){
-			$collection = collect($this->distanceScore)->sortBy('score')->values()->all();
-			$response = $this->fetchData($collection);
+		$params = [
+			'data' => $data
+		];
 
+		return view('main.form', $params);
+	}
+
+	public function actionSave(Request $request)
+	{
+		$id = $request->input('id');
+		$name = $request->input('name');
+		$category = $request->input('category');
+		$description = $request->input('description');
+		$price = $request->input('price');
+
+		if($id){
 			$params = [
-				'status' => 'SUCCCESS',
-				'code' => 200,
-				'data' => $response
+				'name' => $name,
+				'category' => $category,
+				'description' => $description,
+				'price' => $price
 			];
+
+			$client = new Client(['verify' => false ]);
+			$res = $client->put('http://localhost:3000/products/'.$id, [
+				    'form_params' => $params
+			]);
+
+			if($res->getStatusCode() == 200){
+				return redirect('/');
+			}else{
+				return redirect('/add');
+			}
+
 		}else{
 			$params = [
-				'status' => 'FAILED',
-				'code' => 500,
-				'data' => []
-			];
-		}
-
-		return response()->json($params);
-	}
-
-	private function fetchData($collection)
-	{
-		$selectedCollection = collect($collection)->take(10);
-		$imageId = "";
-		foreach ($selectedCollection as $key => $value) {
-			$imageId .= $value['image_id'];
-			$imageId .= ",";
-		}
-
-		$imageId .= "0";
-
-		$data = Library::whereRaw("id IN (".$imageId.")")->orderByRaw("FIELD(id,".$imageId.")")->get();
-		$result = [];
-		foreach ($data as $key => $value) {
-			$result[] = [
-				'image_id' => $value->id,
-				'name' => $value->image_name,
-				'url' => url('public/images')."/".$value->image_name
-			];
-		}
-
-		return $result;
-
-	}
-
-	private function calculateDistance($libraryId)
-	{
-		$selectedLibrary = $this->findOne($libraryId);
-		if(is_null($selectedLibrary)){
-			return false;
-		}
-
-		$histogramSelectedObject = json_decode($selectedLibrary->histogram);
-		foreach ($this->dataSet as $key => $value) {
-			$currentHistogram = json_decode($value->histogram);
-			for ($a=0; $a < 3; $a++) { 
-				for($i = 0; $i < 256; $i++){
-					$this->templateScore[$value->id]['template_score'][$a][$i] = ($histogramSelectedObject[$a][$i] - $currentHistogram[$a][$i] );
-				}
-			}
-		}
-
-		$this->ecluidianDistance();
-		return true;
-
-	}
-
-
-	private function ecluidianDistance()
-	{
-		foreach ($this->templateScore as $key => $value) {
-			$tempScore = 0;
-			foreach ($value['template_score'] as $a => $scores) {
-				foreach ($scores as $k => $score) {
-					$tempScore += pow($score, 2);
-				}
-			}
-			if($tempScore > 0){
-				$tempScore = sqrt($tempScore);
-			}
-
-			$this->distanceScore[$value['image_id']]['score'] += $tempScore;
-		}
-	}
-
-	private function initDataSet()
-	{
-		$data = Library::all();
-		return $data;
-	}
-
-	private function findOne($libraryId)
-	{
-		$object = Library::find($libraryId);
-		return $object;
-	}
-
-	private function initTemplateScore()
-	{
-		$templateScore = [];
-		$distanceScore = [];
-		foreach ($this->dataSet as $key => $value) {
-			$matrixValue = [];
-			for ($a=0; $a < 3; $a++) { 
-				$matrixValue[$a] = [];
-				for($i = 0; $i<256; $i++){
-					$matrixValue[$a][$i] = 0;
-				}
-			}
-
-			$templateScore[$value->id] = [
-				'image_id' => $value->id,
-				'template_score' => $matrixValue
+				'name' => $name,
+				'category' => $category,
+				'description' => $description,
+				'price' => $price
 			];
 
-			$distanceScore[$value->id] = [
-				'image_id' => $value->id,
-				'score' => 0
-			];
+			$client = new Client(['verify' => false ]);
+			$res = $client->post('http://localhost:3000/products', [
+				    'form_params' => $params,
+				    'timeout' => 60,
+	        		'connect_timeout' => 60
+			]);
+
+			if($res->getStatusCode() == 200){
+				return redirect('/');
+			}else{
+				return redirect('/add');
+			}
+
 		}
 
-		$this->initDefaultDistanceScore($distanceScore);
-		return $templateScore;
+		
 	}
 
-	private function initDefaultDistanceScore($distanceScore)
+	public function actionDelete(Request $request)
 	{
-		$this->distanceScore = $distanceScore;
+		$id = $request->get('id');
+		$client = new Client(['verify' => false ]);
+		$res = $client->delete('http://localhost:3000/products/'.$id);
+
+		if($res->getStatusCode() == 200){
+				return redirect('/');
+		}else{
+				return redirect('/add');
+		}
 	}
 }
